@@ -1,7 +1,7 @@
 #!/usr/bin/python3 
 
 """
-Last edit on Sun Mar 13 2022
+Last edit on Sun Mar 14 2022
 
 @author: Tiago Barata
 @course: Master in Software Engineering: Languages Engineering
@@ -73,7 +73,7 @@ def checkValidOptions(dicionario):
         if dicionario[i][0] == '-c' or dicionario[i][0] == '--count':
             if len(dicionario[i]) > 1:
                 print("Choosing count flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -81,7 +81,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-a' or dicionario[i][0] == '--after':
             if len(dicionario[i]) > 1:
                 print("Choosing after flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -89,7 +89,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-b' or dicionario[i][0] == '--before':
             if len(dicionario[i]) > 1:
                 print("Choosing before flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -97,7 +97,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-v' or dicionario[i][0] == '--view':
             if len(dicionario[i]) > 1:
                 print("Choosing view flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -105,7 +105,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-M' or dicionario[i][0] == '--man':
             if len(dicionario[i]) > 1:
                 print("Choosing man flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -113,7 +113,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-s' or dicionario[i][0] == '--symbol':
             if len(dicionario[i]) != 2:
                 print("Choosing symbol flag must have just one argument")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -121,7 +121,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-o' or dicionario[i][0] == '--output':
             if len(dicionario[i]) != 2:
                 print("Choosing output flag must have just one argument")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -130,7 +130,7 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '-W' or dicionario[i][0] == '--woman':
             if len(dicionario[i]) > 1:
                 print("Choosing woman flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
             else:
@@ -138,24 +138,27 @@ def checkValidOptions(dicionario):
         elif dicionario[i][0] == '--install' or dicionario[i][0] == '-i':
             if len(dicionario[i]) > 1:
                 print("Choosing install flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
         elif dicionario[i][0] == '--help':
             if len(dicionario[i]) > 1:
                 print("Choosing help flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
         elif dicionario[i][0] == '--version' or dicionario[i][0] == '-V':
             if len(dicionario[i]) > 1:
                 print("Choosing version flag can't have arguments")
-                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
+        elif re.match(r'-([abcvMW])+', dicionario[i][0]):
+            for elem in dicionario[i][0][1:]:
+                OPTIONS[elem] = True
         else:
             print("highlight: invalid option '" + dicionario[i][0] + "'")
-            print("Usage: highligh [OPTIONS]... [FILE]...")
+            print("Usage: highlight [OPTIONS]... [FILE]...")
             print("Try 'highlight --help' for more info.")
         
 
@@ -290,10 +293,10 @@ def splitter(argv):
     files = []
 
     for i in reversed(range(len(argv))):
-        if argv[i][0] != '\'' and argv[i][0] != '-':
-            files.append(argv.pop(i))
-        else:
+        if argv[i][0] == '-' or argv[i-1] == '-s' or argv[i-1] == '--symbol' or argv[i-1] == '-o' or argv[i-1] == '--output':
             break
+        else:
+            files.append(argv.pop(i))
 
     for elem in argv:
         if elem[0] == '-':
@@ -301,9 +304,11 @@ def splitter(argv):
             dicionario[index] = [str(elem)]
         else: 
             dicionario[index].append(elem)
-    
+
     checkValidOptions(dicionario)
     chechValidFiles(files)
+
+    
 
     return dicionario, files 
 
@@ -342,7 +347,7 @@ def printHelp():
     print("\t\t\t\tSuppress normal output; instead redirect it for a specific file.")
     print()
     print("\t\t-s, --symbol")
-    print("\t\t\t\tYou can choose the symbol to highlight in the text. You must put the symbol between apostrophes, like this '&'")
+    print("\t\t\t\tYou can choose the symbol to highlight in the text. You must put the symbol flag and the chosed symbol between apostrophes, like this '&'")
     print()
     print("\t\t-v, --view")
     print("\t\t\t\tSuppress normal output; instead print the names occured for each input file sorted alphabetically.")
@@ -395,10 +400,12 @@ def SelectOptions(args, files):
     elif len(args) == 0 and len(files)==0:
         print("You must pass arguments to highlight filter.")
         print("Try 'highlight --help' for more info.")
-    else:
+    elif len(files)!=0:
         for file in files:
             myFilter(file)
+    else:
+        print("You must pass a file name to highlight filter.")
+        print("Try 'highlight --help' for more info.")
 
-print(os.getcwd())
 vars,files = splitter(sys.argv)
 SelectOptions(vars, files)
