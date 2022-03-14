@@ -1,0 +1,404 @@
+#!/usr/bin/python3 
+
+"""
+Last edit on Sun Mar 13 2022
+
+@author: Tiago Barata
+@course: Master in Software Engineering: Languages Engineering
+@organization: University of Minho
+"""
+
+################### IMPORTS ###################
+import sys
+import os
+import requests
+import re
+
+################### FINAL VARIABLES ###################
+DIR = os.environ['HOME'] + '/.PLN/'
+URLNOMES = 'https://raw.githubusercontent.com/tiagomqbarata/SPLN_Files/main/nomes'
+URLNF = 'https://raw.githubusercontent.com/tiagomqbarata/SPLN_Files/main/nomesFemininos'
+URLNM = 'https://raw.githubusercontent.com/tiagomqbarata/SPLN_Files/main/nomesMasculinos'
+FILENOMES = '/dictNomes'
+FILENOMESM = '/nomesMasc'
+FILENOMESF = '/nomesFem'
+OPTIONS = {'a': False, 'b': False,'c':False, 'v':False, 'o': '', 's':'@', 'M':False, 'W':False}
+
+
+################### FUNCTIONS ###################
+# Create folder '~/.PLN'
+def createPLNdir():
+    print("Creating temp folder")
+    os.mkdir(DIR)
+
+
+# Download file 'nomes' and put it in '~/.PLN/dictNomes'
+def getNomes():
+    print("Download dependencies")
+    try:
+        r = requests.get(URLNOMES, allow_redirects=True)
+        open(DIR + FILENOMES, 'wb').write(r.content)
+    except:
+        print("You must be connected to Internet")
+
+
+# Download file 'nomesMasculinos' and put it in '~/.PLN/nomesMasc'
+def getNomesM():
+    try:
+        r = requests.get(URLNM, allow_redirects=True)
+        open(DIR + FILENOMESM, 'wb').write(r.content)
+    except:
+        print("You must be connected to Internet")
+
+
+# Download file 'nomesFemininos' and put it in '~/.PLN/nomesFem'
+def getNomesF():
+    try:
+        r = requests.get(URLNF, allow_redirects=True)
+        open(DIR + FILENOMESF, 'wb').write(r.content)
+    except:
+        print("You must be connected to Internet")
+
+
+# Download the 3 files needed for this filter, and save that in '~/.PLN'
+def getDependencies():
+    getNomes()
+    getNomesF()
+    getNomesM()
+
+
+# Check if the sintax of the input is valid to the program
+def checkValidOptions(dicionario):
+    for i in range(len(dicionario)):
+        if dicionario[i][0] == '-c' or dicionario[i][0] == '--count':
+            if len(dicionario[i]) > 1:
+                print("Choosing count flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['c'] = True
+        elif dicionario[i][0] == '-a' or dicionario[i][0] == '--after':
+            if len(dicionario[i]) > 1:
+                print("Choosing after flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['a'] = True   
+        elif dicionario[i][0] == '-b' or dicionario[i][0] == '--before':
+            if len(dicionario[i]) > 1:
+                print("Choosing before flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['b'] = True      
+        elif dicionario[i][0] == '-v' or dicionario[i][0] == '--view':
+            if len(dicionario[i]) > 1:
+                print("Choosing view flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['v'] = True
+        elif dicionario[i][0] == '-M' or dicionario[i][0] == '--man':
+            if len(dicionario[i]) > 1:
+                print("Choosing man flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['M'] = True
+        elif dicionario[i][0] == '-s' or dicionario[i][0] == '--symbol':
+            if len(dicionario[i]) != 2:
+                print("Choosing symbol flag must have just one argument")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['s'] = dicionario[i][1]
+        elif dicionario[i][0] == '-o' or dicionario[i][0] == '--output':
+            if len(dicionario[i]) != 2:
+                print("Choosing output flag must have just one argument")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['o'] = dicionario[i][1]
+                open(dicionario[i][1], "w").write("")
+        elif dicionario[i][0] == '-W' or dicionario[i][0] == '--woman':
+            if len(dicionario[i]) > 1:
+                print("Choosing woman flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['W'] = True
+        elif dicionario[i][0] == '--install' or dicionario[i][0] == '-i':
+            if len(dicionario[i]) > 1:
+                print("Choosing install flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+        elif dicionario[i][0] == '--help':
+            if len(dicionario[i]) > 1:
+                print("Choosing help flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+        elif dicionario[i][0] == '--version' or dicionario[i][0] == '-V':
+            if len(dicionario[i]) > 1:
+                print("Choosing version flag can't have arguments")
+                print("Usage: highligh [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+        else:
+            print("highlight: invalid option '" + dicionario[i][0] + "'")
+            print("Usage: highligh [OPTIONS]... [FILE]...")
+            print("Try 'highlight --help' for more info.")
+        
+
+# Check if files to use exists
+def chechValidFiles(files):
+    for file in files:
+        if not os.path.exists(file):
+            print("ERROR: File '" + file + "' not found")
+            exit(-1)
+
+
+# return the text file with hilighted names
+def noFlagsFunction(sourceFile, file):
+    dicionarioNomes = set(nomes.strip() for nomes in open(sourceFile, "r"))
+    f = open(file, "r").read()
+
+    symbol = OPTIONS['s']
+
+    if (OPTIONS["a"] == True and OPTIONS["b"] == True) or ((OPTIONS["a"] == False and OPTIONS["b"] == False)):
+        def fs(m):
+            return rf"{symbol}{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
+
+        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+
+        f = re.sub(rf"{symbol}\s*{symbol}", r" ", f)
+
+        f = re.sub(rf"{symbol}\s*(da|do|das|dos|de)\s*{symbol}", r" \1 ", f)
+    elif OPTIONS["a"] == True:
+        def fs(m):
+            return rf"{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
+
+        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+
+    elif OPTIONS["b"] == True:
+        def fs(m):
+            return rf"{symbol}{m[1]}" if m[1] in dicionarioNomes else m[1] 
+
+        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+
+    return f
+
+
+# Return a sorted list with occorred names in file
+def showNamesFunction(sourceFile, file):
+    symbol = OPTIONS['s']
+    f = noFlagsFunction(sourceFile, file)
+
+    f = re.findall(rf"{symbol}\b(.+?)\b{symbol}", f)
+
+    nomes = sorted(set(f))
+
+    return nomes
+
+
+# Counting the occurencies of diferent names
+def countFunction(sourceFile, file):
+    symbol = OPTIONS['s']
+    dictionary = {}
+
+    f = noFlagsFunction(sourceFile, file)
+
+    f = re.findall(rf"{symbol}\b(.+?)\b{symbol}", f)
+
+    nomes = sorted(set(f))
+
+    # Create dictionary of all names and all zero
+    for elem in nomes:
+        dictionary[elem] = 0
+
+    # Count the occurencies of names
+    for elem in f:
+        dictionary[elem] +=1
+
+    dictionary = {k: v for k, v in sorted(dictionary.items(), key=lambda item: item[1], reverse=True)}
+
+    string = ""
+    for elem in dictionary.keys(): 
+        string += elem + ': ' + str(dictionary[elem]) + '\n'
+
+    string += "Total: " + str(len(dictionary)) + '\n'
+
+    return string
+
+
+# Define flags before and after as False 
+def ignoreABFlags():
+    OPTIONS['a'] = False
+    OPTIONS['b'] = False
+
+
+# Calls functions attending view and count flags
+def run(sourceFile, file):
+    if OPTIONS['c'] == True:
+        ignoreABFlags()
+        return countFunction(sourceFile, file)
+    elif OPTIONS['v'] == True:
+        ignoreABFlags()
+        nomes = showNamesFunction(sourceFile, file)
+        stringNomes = ""
+        for nome in nomes:
+            stringNomes += nome + '\n'
+        return stringNomes
+    else:
+        return noFlagsFunction(sourceFile, file)
+
+
+# Run the function of program attending to name flags
+def myFilter(file):
+    print("################### " + file + " ###################")
+    if (OPTIONS['M'] == False and OPTIONS['W'] == False) or (OPTIONS['M'] == True and OPTIONS['W']==True):
+        result = run(DIR + FILENOMES, file)
+    elif OPTIONS['M'] == True:
+        result = run(DIR + FILENOMESM, file)
+    elif OPTIONS['W'] == True:
+        result = run(DIR + FILENOMESF, file)
+    else:
+        print("Not supported case")
+        exit(-1)
+    if OPTIONS['o'] == "":
+        print(result)
+    else:
+        f = open(OPTIONS['o'], 'a')
+        f.write(result)
+    print()
+
+
+# Split the input, and create a dictionary with lists of arguments, united by function called
+def splitter(argv):
+    argv.pop(0)
+    index = -1
+    dicionario = {}
+    files = []
+
+    for i in reversed(range(len(argv))):
+        if argv[i][0] != '\'' and argv[i][0] != '-':
+            files.append(argv.pop(i))
+        else:
+            break
+
+    for elem in argv:
+        if elem[0] == '-':
+            index += 1
+            dicionario[index] = [str(elem)]
+        else: 
+            dicionario[index].append(elem)
+    
+    checkValidOptions(dicionario)
+    chechValidFiles(files)
+
+    return dicionario, files 
+
+# Print the help option
+def printHelp():
+    print("\t\t\t\t\t\t\t\tUser Commands")
+    print("\t\tWelcome to highlight, the filter of portuguese names")
+    print("NAME")
+    print("\t\thighlight - highlight portuguese names with a special character ('@' it's the predefined symbol)")
+    print("SINOPSE")
+    print("\t\thighligh [OPTIONS...] [FILE...]")
+    print("DESCRIPTION")
+    print("\t\thighlight search around all file for names, and replaces 'names' for '@names@'. If it finds composed names, and both names are in the database, like 'composed name', the substituition is '@composed name@' even if it has some connector")
+    print("OPTIONS")
+    print("\tRequire")
+    print("\t\t-i, --install")
+    print("\t\t\t\tInstall the dictionaries of names used by filter.")
+    print()
+    print("\tGeneric Program Information")
+    print("\t\t--help Output a usage message and exit.")
+    print()
+    print("\t\t-V, --version.")
+    print("\t\t\t\tOutput the version number of highlight and exit.")
+    print("\tGeneral Output Control")
+    print()
+    print("\t\t-a, --after")
+    print("\t\t\t\tPut the symbol just after the matched name.")
+    print()
+    print("\t\t-b, --before")
+    print("\t\t\t\tPut the symbol just before the matched name.")
+    print()
+    print("\t\t-c, --count")
+    print("\t\t\t\tSuppress normal output; instead print the list of names that occurred with the number of occurrences, followed by the total number of different names.")
+    print()
+    print("\t\t-o, --output")
+    print("\t\t\t\tSuppress normal output; instead redirect it for a specific file.")
+    print()
+    print("\t\t-s, --symbol")
+    print("\t\t\t\tYou can choose the symbol to highlight in the text. You must put the symbol between apostrophes, like this '&'")
+    print()
+    print("\t\t-v, --view")
+    print("\t\t\t\tSuppress normal output; instead print the names occured for each input file sorted alphabetically.")
+    print()
+    print("\t\t-M, --man")
+    print("\t\t\t\tJust highlight names of mans. Can be combined with -v or -c.")
+    print()
+    print("\t\t-W, --woman")
+    print("\t\t\t\tJust highlight names of women. Can be combined with -v, -c or -s.")
+    print()
+    
+
+# Print the version option
+def printVersion():
+    print("Highlight 1.0")
+    print("Licence of University of Minho")
+    print("This is a free software: you are free to change and redistribute it.")
+    print()
+    print("Written by Tiago Barata")
+    print("<https://github.com/tiagomqbarata>")
+
+
+def SelectOptions(args, files):
+    if len(args) == 1 and len(args[0]) == 1 and files == []:
+        if args[0][0] == '--install' or args[0][0] == '-i':
+            if not os.path.exists(DIR):
+                createPLNdir()
+                getDependencies()
+            else:
+                if(not os.path.exists(DIR + FILENOMES)):
+                    getNomes()
+                if(not os.path.exists(DIR + FILENOMESM)):
+                    getNomesM()
+                if(not os.path.exists(DIR + FILENOMESF)):
+                    getNomesF()
+                print('------------------')
+                print("You are able to use this filter")
+                print("Try 'highlight --help' for more info.")
+        elif args[0][0] == '--help':
+            printHelp()
+        elif args[0][0] == '--version' or args[0][0] == '-V':
+            printVersion()
+        else:
+            print("ERROR: Invalid input")
+            exit(-1)
+    elif not os.path.exists(DIR) or not os.path.exists(DIR + FILENOMES) or not os.path.exists(DIR + FILENOMESM) or not os.path.exists(DIR + FILENOMESF):
+        print("You are not able to use this filter yet.")
+        print("You must use command 'highlight --install' to start using this filter, or try 'highlight --help' for more info.")
+        exit(-1)
+    elif len(args) == 0 and len(files)==0:
+        print("You must pass arguments to highlight filter.")
+        print("Try 'highlight --help' for more info.")
+    else:
+        for file in files:
+            myFilter(file)
+
+print(os.getcwd())
+vars,files = splitter(sys.argv)
+SelectOptions(vars, files)
