@@ -8,4 +8,4 @@ O comando `nome_filtro --help` está disponível em qualquer um dos filtros, o q
 
 
 ### **Filtros disponíveis:**
-- highlight: Deteção de nomes portugueses em ficheiros
+- **highlight** -> deteção de nomes portugueses em ficheiros
