@@ -183,18 +183,18 @@ def noFlagsFunction(sourceFile, file):
 
         f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
-        f = re.sub(rf"{symbol}\s*{symbol}", r" ", f)
+        f = re.sub(rf"\{symbol}\s*\{symbol}", r" ", f)
 
-        f = re.sub(rf"{symbol}\s*(da|do|das|dos|de)\s*{symbol}", r" \1 ", f)
+        f = re.sub(rf"\{symbol}\s*(da|do|das|dos|de)\s*\{symbol}", r" \1 ", f)
     elif OPTIONS["a"] == True:
         def fs(m):
-            return rf"{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
+            return rf"{m[1]}\{symbol}" if m[1] in dicionarioNomes else m[1] 
 
         f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
     elif OPTIONS["b"] == True:
         def fs(m):
-            return rf"{symbol}{m[1]}" if m[1] in dicionarioNomes else m[1] 
+            return rf"\{symbol}{m[1]}" if m[1] in dicionarioNomes else m[1] 
 
         f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
@@ -206,7 +206,7 @@ def showNamesFunction(sourceFile, file):
     symbol = OPTIONS['s']
     f = noFlagsFunction(sourceFile, file)
 
-    f = re.findall(rf"{symbol}\b(.+?)\b{symbol}", f)
+    f = re.findall(rf"\{symbol}\b(.+?)\b\{symbol}", f)
 
     nomes = sorted(set(f))
 
@@ -220,7 +220,7 @@ def countFunction(sourceFile, file):
 
     f = noFlagsFunction(sourceFile, file)
 
-    f = re.findall(rf"{symbol}\b(.+?)\b{symbol}", f)
+    f = re.findall(rf"\{symbol}\b(.+?)\b\{symbol}", f)
 
     nomes = sorted(set(f))
 
