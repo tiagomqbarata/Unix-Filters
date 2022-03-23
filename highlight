@@ -9,6 +9,7 @@ Last edit on Sun Mar 15 2022
 """
 
 ################### IMPORTS ###################
+from sre_parse import FLAGS
 import sys
 import os
 import requests
@@ -22,7 +23,7 @@ URLNM = 'https://raw.githubusercontent.com/tiagomqbarata/SPLN_Files/main/nomesMa
 FILENOMES = '/dictNomes'
 FILENOMESM = '/nomesMasc'
 FILENOMESF = '/nomesFem'
-OPTIONS = {'a': False, 'b': False,'c':False, 'v':False, 'o': '', 's':'@', 'M':False, 'W':False}
+OPTIONS = {'a': False, 'b': False,'c':False, 'v':False, 'o': '', 's':'@', 'M':False, 'W':False, 'i':False}
 
 
 ################### FUNCTIONS ###################
@@ -135,7 +136,15 @@ def checkValidOptions(dicionario):
                 exit(-1)
             else:
                 OPTIONS['W'] = True
-        elif dicionario[i][0] == '--install' or dicionario[i][0] == '-i':
+        elif dicionario[i][0] == '-i' or dicionario[i][0] == '--insensitive':
+            if len(dicionario[i]) > 1:
+                print("Choosing insensitive flag can't have arguments")
+                print("Usage: highlight [OPTIONS]... [FILE]...")
+                print("Try 'highlight --help' for more info.")
+                exit(-1)
+            else:
+                OPTIONS['i'] = True
+        elif dicionario[i][0] == '--install' or dicionario[i][0] == '-I':
             if len(dicionario[i]) > 1:
                 print("Choosing install flag can't have arguments")
                 print("Usage: highlight [OPTIONS]... [FILE]...")
@@ -153,7 +162,7 @@ def checkValidOptions(dicionario):
                 print("Usage: highlight [OPTIONS]... [FILE]...")
                 print("Try 'highlight --help' for more info.")
                 exit(-1)
-        elif re.match(r'-([abcvMW])+', dicionario[i][0]):
+        elif re.match(r'-([abcvMWi])+', dicionario[i][0]):
             for elem in dicionario[i][0][1:]:
                 OPTIONS[elem] = True
         else:
@@ -172,8 +181,16 @@ def chechValidFiles(files):
 
 # return the text file with hilighted names
 def noFlagsFunction(sourceFile, file):
-    dicionarioNomes = set(nomes.strip() for nomes in open(sourceFile, "r"))
+    dicionario = set(nomes.strip() for nomes in open(sourceFile, "r"))
+    dicionarioNomes = set()
     f = open(file, "r").read()
+    
+    for nome in dicionario:
+        if OPTIONS['i'] == True:
+            dicionarioNomes.add(nome.lower())
+            f = f.lower()
+        else:
+            dicionarioNomes.add(nome)
 
     symbol = OPTIONS['s']
 
@@ -181,7 +198,7 @@ def noFlagsFunction(sourceFile, file):
         def fs(m):
             return rf"{symbol}{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
 
-        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+        f = re.sub(rf'\b(\w+)\b', fs, f)
 
         f = re.sub(rf"\{symbol}\s*\{symbol}", r" ", f)
 
@@ -324,7 +341,7 @@ def printHelp():
     print("\t\thighlight search around all file for names, and replaces 'names' for '@names@'. If it finds composed names, and both names are in the database, like 'composed name', the substituition is '@composed name@' even if it has some connector")
     print("OPTIONS")
     print("\tRequire")
-    print("\t\t-i, --install")
+    print("\t\t-I, --install")
     print("\t\t\t\tInstall the dictionaries of names used by filter.")
     print()
     print("\tGeneric Program Information")
@@ -342,6 +359,9 @@ def printHelp():
     print()
     print("\t\t-c, --count")
     print("\t\t\t\tSuppress normal output; instead print the list of names that occurred with the number of occurrences, followed by the total number of different names.")
+    print()
+    print("\t\t-i, --insensitive")
+    print("\t\t\t\tPut all text in lowercase, then match the name, even if it was write capitalized. Not an efficient option, and makes the filter very slow.")
     print()
     print("\t\t-o, --output")
     print("\t\t\t\tSuppress normal output; instead redirect it for a specific file.")
@@ -372,7 +392,7 @@ def printVersion():
 
 def SelectOptions(args, files):
     if len(args) == 1 and len(args[0]) == 1 and files == []:
-        if args[0][0] == '--install' or args[0][0] == '-i':
+        if args[0][0] == '--install' or args[0][0] == '-I':
             if not os.path.exists(DIR):
                 createPLNdir()
                 getDependencies()
