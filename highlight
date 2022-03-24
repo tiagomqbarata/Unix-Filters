@@ -1,7 +1,7 @@
 #!/usr/bin/python3 
 
 """
-Last edit on Sun Mar 15 2022
+Last edit on Sun Mar 24 2022
 
 @author: Tiago Barata
 @course: Master in Software Engineering: Languages Engineering
@@ -182,15 +182,12 @@ def chechValidFiles(files):
 # return the text file with hilighted names
 def noFlagsFunction(sourceFile, file):
     dicionario = set(nomes.strip() for nomes in open(sourceFile, "r"))
-    dicionarioNomes = set()
+    dicionarioNomes = dicionario.copy()
     f = open(file, "r").read()
     
-    for nome in dicionario:
-        if OPTIONS['i'] == True:
+    if OPTIONS['i'] == True:
+        for nome in dicionario:
             dicionarioNomes.add(nome.lower())
-            f = f.lower()
-        else:
-            dicionarioNomes.add(nome)
 
     symbol = OPTIONS['s']
 
@@ -382,7 +379,7 @@ def printHelp():
 
 # Print the version option
 def printVersion():
-    print("Highlight 1.0")
+    print("Highlight 1.2")
     print("Licence of University of Minho")
     print("This is a free software: you are free to change and redistribute it.")
     print()
