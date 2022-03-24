@@ -182,35 +182,62 @@ def chechValidFiles(files):
 # return the text file with hilighted names
 def noFlagsFunction(sourceFile, file):
     dicionario = set(nomes.strip() for nomes in open(sourceFile, "r"))
-    dicionarioNomes = dicionario.copy()
+    dicionarioNomes = set()
     f = open(file, "r").read()
     
     if OPTIONS['i'] == True:
         for nome in dicionario:
             dicionarioNomes.add(nome.lower())
+    else:
+        dicionarioNomes = dicionario.copy()        
 
     symbol = OPTIONS['s']
 
     if (OPTIONS["a"] == True and OPTIONS["b"] == True) or ((OPTIONS["a"] == False and OPTIONS["b"] == False)):
+               
         def fs(m):
             return rf"{symbol}{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
 
-        f = re.sub(rf'\b(\w+)\b', fs, f)
+        def fsI(m):
+            palavra = m[1]
+            palavra = palavra.lower()
+            return rf"{symbol}{m[1]}{symbol}" if palavra in dicionarioNomes else m[1] 
+
+        if OPTIONS['i'] == True:
+            f = re.sub(rf'\b(\w+)\b', fsI, f)
+        else:
+            f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
         f = re.sub(rf"\{symbol}\s*\{symbol}", r" ", f)
 
         f = re.sub(rf"\{symbol}\s*(da|do|das|dos|de)\s*\{symbol}", r" \1 ", f)
     elif OPTIONS["a"] == True:
         def fs(m):
-            return rf"{m[1]}\{symbol}" if m[1] in dicionarioNomes else m[1] 
+            return rf"{m[1]}{symbol}" if m[1] in dicionarioNomes else m[1] 
 
-        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+        def fsI(m):
+            palavra = m[1]
+            palavra = palavra.lower()
+            return rf"{m[1]}{symbol}" if palavra in dicionarioNomes else m[1] 
+
+        if OPTIONS['i'] == True:
+            f = re.sub(rf'\b(\w+)\b', fsI, f)
+        else:
+            f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
     elif OPTIONS["b"] == True:
         def fs(m):
-            return rf"\{symbol}{m[1]}" if m[1] in dicionarioNomes else m[1] 
+            return rf"{symbol}{m[1]}" if m[1] in dicionarioNomes else m[1] 
 
-        f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
+        def fsI(m):
+            palavra = m[1]
+            palavra = palavra.lower()
+            return rf"{symbol}{m[1]}" if palavra in dicionarioNomes else m[1] 
+
+        if OPTIONS['i'] == True:
+            f = re.sub(rf'\b(\w+)\b', fsI, f)
+        else:
+            f = re.sub(rf'\b([A-ZÂÁÉ]\w+)\b', fs, f)
 
     return f
 
