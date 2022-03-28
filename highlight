@@ -9,7 +9,6 @@ Last edit on Sun Mar 24 2022
 """
 
 ################### IMPORTS ###################
-from sre_parse import FLAGS
 import sys
 import os
 import requests
